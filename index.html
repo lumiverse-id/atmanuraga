@@ -1,0 +1,430 @@
+<!doctype html>
+<html lang="id">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<style>html{color-scheme:dark;background:#0B0A08}body{margin:0}img{max-width:100%}[hidden]{display:none!important}</style>
+<title>Kuis Lumiverse</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Figtree:wght@400;500;600&family=Gilda+Display&display=swap">
+<style>
+  /* Layout: satu kolom sempit seperti halaman jurnal. Satu pernyataan per layar, nyala lilin menandai progres.
+     Satu dunia visual: hitam hangat dan emas, seperti lilin menyala di ruang gelap. */
+  :root {
+    --bg: #0B0A08;
+    --glow: #251D0D;
+    --surface: #14120E;
+    --fg: #EFE6D2;
+    --muted: #A59A82;
+    --line: #2C261A;
+    --accent: #D6B15A;
+    --accent-soft: #2B2410;
+    --on-accent: #14100A;
+    --flame-core: #FFF0C4;
+    --font-display: 'Gilda Display', Georgia, 'Times New Roman', serif;
+    --font-body: 'Figtree', system-ui, -apple-system, 'Segoe UI', sans-serif;
+    color-scheme: dark;
+  }
+
+  body {
+    background-color: var(--bg);
+    background-image: radial-gradient(ellipse 90% 420px at 50% 0, var(--glow), transparent);
+    background-repeat: no-repeat;
+    color: var(--fg);
+    font-family: var(--font-body);
+    font-size: 16px;
+    line-height: 1.55;
+  }
+  .shell {
+    max-width: 560px;
+    margin: 0 auto;
+    padding-block: 20px 56px;
+    padding-left: max(16px, env(safe-area-inset-left, 0px));
+    padding-right: max(16px, env(safe-area-inset-right, 0px));
+  }
+
+  header { display: flex; align-items: center; justify-content: space-between; gap: 12px; margin-bottom: 36px; }
+  .brand { display: flex; align-items: center; gap: 10px; }
+  .brand svg { width: 18px; height: 24px; transform-origin: 50% 100%; }
+  .brand span { font-family: var(--font-display); font-size: 22px; letter-spacing: 0.04em; color: var(--accent); }
+  .tag {
+    font-size: 11px; letter-spacing: 0.12em; text-transform: uppercase; color: var(--muted);
+    border: 1px solid var(--line); border-radius: 999px; padding: 3px 10px;
+  }
+  @media (prefers-reduced-motion: no-preference) {
+    .brand svg { animation: flicker 3.2s ease-in-out infinite; }
+    @keyframes flicker { 0%,100% { transform: scaleY(1) rotate(0deg); } 40% { transform: scaleY(1.06) rotate(-1.5deg); } 70% { transform: scaleY(0.97) rotate(1deg); } }
+    .view { animation: rise 0.28s ease-out; }
+    @keyframes rise { from { opacity: 0; transform: translateY(6px); } to { opacity: 1; transform: none; } }
+  }
+
+  h1, h2 { font-family: var(--font-display); font-weight: 400; text-wrap: balance; margin: 0; }
+  h1 { font-size: 32px; line-height: 1.15; }
+  h2 { font-size: 26px; line-height: 1.2; }
+  p { margin: 0; }
+  .eyebrow { font-size: 12px; letter-spacing: 0.12em; text-transform: uppercase; color: var(--muted); }
+  .lead { color: var(--muted); max-width: 60ch; }
+  .stack { display: flex; flex-direction: column; gap: 18px; }
+
+  .btn {
+    font: inherit; font-weight: 600; cursor: pointer;
+    background: var(--accent); color: var(--on-accent);
+    border: 0; border-radius: 999px; padding: 14px 26px; min-height: 48px;
+  }
+  .btn.ghost { background: transparent; color: var(--fg); border: 1px solid var(--line); }
+  .btn.ghost:hover { border-color: var(--accent); }
+  .link {
+    font: inherit; font-size: 14px; cursor: pointer; background: none; border: 0; padding: 8px 0;
+    color: var(--muted); text-decoration: underline; text-underline-offset: 3px; text-align: left;
+  }
+  .link:hover { color: var(--accent); }
+  .btn:focus-visible, .link:focus-visible, .opt:focus-visible, .pick:focus-visible { outline: 3px solid var(--accent); outline-offset: 3px; }
+  .actions { display: flex; flex-wrap: wrap; align-items: center; gap: 8px 20px; }
+
+  .flow { display: flex; flex-wrap: wrap; gap: 8px; padding: 0; margin: 0; list-style: none; }
+  .flow li { font-size: 14px; border: 1px solid var(--line); border-radius: 999px; padding: 4px 14px; background: var(--surface); color: var(--accent); }
+
+  .progress { display: flex; align-items: center; gap: 14px; }
+  .track { flex: 1; height: 2px; background: var(--line); border-radius: 2px; }
+  .fill { position: relative; height: 100%; width: 0; background: var(--accent); border-radius: 2px; transition: width 0.3s ease; }
+  .fill::after {
+    content: ""; position: absolute; right: -4px; top: 50%; width: 8px; height: 8px; margin-top: -4px;
+    border-radius: 50%; background: var(--accent); box-shadow: 0 0 0 4px var(--accent-soft);
+  }
+  .count { font-size: 13px; color: var(--muted); font-variant-numeric: tabular-nums; }
+
+  .q { font-family: var(--font-display); font-size: 26px; line-height: 1.28; text-wrap: balance; margin: 32px 0 26px; min-height: 5.2em; }
+  .opts { display: flex; flex-direction: column; gap: 10px; }
+  .opt {
+    font: inherit; font-weight: 500; text-align: left; cursor: pointer; width: 100%;
+    background: var(--surface); color: var(--fg); border: 1px solid var(--line);
+    border-radius: 12px; padding: 14px 16px; min-height: 52px;
+  }
+  .opt:hover { border-color: var(--accent); }
+  .opt.sel { background: var(--accent-soft); border-color: var(--accent); }
+
+  .cards { display: flex; flex-direction: column; gap: 20px; margin-top: 8px; }
+  .theme { background: var(--surface); border: 1px solid var(--line); border-radius: 14px; padding: 26px 22px; display: flex; flex-direction: column; gap: 14px; min-width: 0; }
+  .theme .eyebrow { color: var(--accent); }
+  .story { display: flex; flex-direction: column; gap: 14px; font-size: 17px; line-height: 1.68; max-width: 60ch; }
+  .begin { border-top: 1px solid var(--line); padding-top: 18px; margin-top: 8px; display: flex; flex-direction: column; gap: 4px; }
+  .steps { list-style: none; margin: 6px 0 4px; padding: 0; display: flex; flex-direction: column; gap: 20px; }
+  .steps li { display: flex; flex-direction: column; gap: 4px; }
+  .step { font-size: 12px; letter-spacing: 0.12em; text-transform: uppercase; color: var(--accent); font-weight: 600; }
+  .note { font-size: 13px; color: var(--muted); max-width: 60ch; }
+  .banner { font-size: 13px; background: var(--accent-soft); border-radius: 10px; padding: 10px 14px; }
+
+  .picklist { display: flex; flex-direction: column; gap: 10px; margin-top: 20px; }
+  .pick {
+    font: inherit; text-align: left; cursor: pointer; width: 100%;
+    background: var(--surface); color: var(--fg); border: 1px solid var(--line);
+    border-radius: 12px; padding: 14px 16px; display: flex; flex-direction: column; gap: 2px;
+  }
+  .pick:hover { border-color: var(--accent); }
+  .pick b { font-family: var(--font-display); font-weight: 400; font-size: 20px; }
+  .pick span { font-size: 14px; color: var(--muted); }
+</style>
+
+<div class="shell">
+  <header>
+    <div class="brand">
+      <svg viewBox="0 0 24 32" aria-hidden="true">
+        <path d="M12 1C12 1 4 11 4 19a8 8 0 0 0 16 0C20 11 12 1 12 1z" fill="var(--accent)"/>
+        <path d="M12 14c0 0-3 3.5-3 6.5a3 3 0 0 0 6 0c0-3-3-6.5-3-6.5z" fill="var(--flame-core)"/>
+      </svg>
+      <span>Lumiverse</span>
+    </div>
+    <span class="tag">Prototipe</span>
+  </header>
+
+  <main>
+    <section id="v-intro" class="view stack">
+      <p class="eyebrow">Ritual refleksi</p>
+      <h1>Tema apa yang paling dekat denganmu saat ini?</h1>
+      <p class="lead">24 pernyataan, sekitar 4 menit. Jawab sesuai yang paling sering kamu rasakan belakangan ini, bukan yang seharusnya kamu rasakan.</p>
+      <p class="lead">Hasilnya dua tema. Tiap tema punya tiga prompt journaling dengan alur ini:</p>
+      <ol class="flow"><li>Sadari</li><li>Namai</li><li>Lepaskan</li></ol>
+      <div class="actions">
+        <button class="btn" data-act="start" id="btn-start">Mulai</button>
+        <button class="link" data-act="sample" id="btn-sample">Lihat contoh hasil</button>
+      </div>
+    </section>
+
+    <section id="v-quiz" class="view" hidden>
+      <div class="progress">
+        <div class="track"><div class="fill" id="fill"></div></div>
+        <span class="count" id="count">1 / 24</span>
+      </div>
+      <p class="q" id="qtext"></p>
+      <div class="opts" id="opts"></div>
+      <div class="actions" style="margin-top:18px">
+        <button class="link" data-act="back" id="btn-back">Kembali</button>
+      </div>
+    </section>
+
+    <section id="v-result" class="view stack" hidden>
+      <p class="eyebrow">Tema yang paling dekat denganmu saat ini</p>
+      <p class="banner" id="sample" hidden>Ini contoh hasil, bukan hasil dari jawabanmu.</p>
+      <div class="cards" id="cards"></div>
+      <p class="note">Ini alat refleksi, bukan penilaian psikologis dan bukan pengganti bantuan profesional. Kalau ada hal yang terasa terlalu berat, berhenti sebentar dan cari teman bicara yang kamu percaya.</p>
+      <div class="actions">
+        <button class="btn ghost" data-act="retry" id="btn-retry">Ulangi kuis</button>
+      </div>
+    </section>
+
+    <section id="v-picker" class="view" hidden>
+      <p class="eyebrow">Kurang pas?</p>
+      <h2 style="margin-top:8px">Tema lain yang juga dekat denganmu</h2>
+      <p class="lead" style="margin-top:10px">Dari jawabanmu, tiga tema ini yang paling mendekati. Pilih satu untuk menggantikan tema yang tadi.</p>
+      <div class="picklist" id="picklist"></div>
+      <div class="actions" style="margin-top:14px">
+        <button class="link" data-act="cancel" id="btn-cancel">Batal</button>
+      </div>
+    </section>
+  </main>
+</div>
+
+<script>
+(function () {
+  var THEMES = [
+    { name: "Berani Mengambil Ruang", short: "Tentang hak untuk punya keinginan, marah, dan mengambil tempat tanpa merasa bersalah.",
+      story: [
+        "Ada saat-saat ketika kamu sebenarnya ingin bilang tidak, ingin meminta, atau ingin marah, lalu kamu menarik napas dan mengalah. Kamu bilang pada diri sendiri bahwa ini bukan masalah besar. Tapi sesuatu di dalam dadamu tetap terasa sesak.",
+        "Mungkin kamu pernah belajar bahwa menginginkan sesuatu berarti merepotkan, dan bahwa marah berarti merusak suasana. Jadi kamu memilih mengecil, supaya semuanya tetap tenang. Pada masanya, itu cara menjaga diri yang masuk akal.",
+        "Sekarang kita tanyakan pelan-pelan: ke mana perginya semua keinginanmu selama ini? Di halaman ini tidak ada yang menunggumu mengalah. Kamu boleh menginginkan sesuatu, dan kita mulai dari menyadarinya saja."
+      ],
+      items: ["Aku menahan amarah atau keinginanku supaya tidak dianggap merepotkan.", "Aku merasa bersalah saat mendahulukan kebutuhanku sendiri."],
+      prompts: ["Kapan terakhir kali kamu menahan sesuatu yang sebenarnya ingin kamu katakan atau minta?", "Rasa apa yang muncul saat itu: marah, takut, kecewa, atau lelah? Tulis sespesifik mungkin.", "Tuliskan satu kalimat yang selama ini kamu tahan. Bacalah pelan, lalu tulis: “Aku boleh menginginkan ini.”"] },
+    { name: "Merasa Layak", short: "Tentang rasa pantas menerima, tanpa harus membuktikan dulu.",
+      story: [
+        "Saat seseorang memberimu sesuatu, entah hadiah, pujian, atau bantuan, ada bagian dirimu yang langsung menghitung: bagaimana cara membalasnya? Kamu sulit menerima begitu saja, karena menerima terasa seperti berutang.",
+        "Mungkin kamu terbiasa merasa harus berguna dulu untuk pantas dicintai atau dibantu. Jadi hal-hal baik terasa seperti milik orang lain, dan kamu hanya menumpang sebentar. Padahal rasa layak tidak pernah perlu dibayar di muka.",
+        "Di halaman berikutnya, kita tidak mencari cara untuk membuatmu pantas. Kita hanya melihat dulu di mana rasa “tidak pantas” itu tinggal di dalam dirimu, lalu mulai pelan-pelan dari sana."
+      ],
+      items: ["Aku sulit menerima pemberian atau kebaikan orang tanpa merasa berutang.", "Diam-diam aku merasa kurang pantas mendapatkan hal-hal baik."],
+      prompts: ["Hal baik apa yang belakangan ini sulit kamu terima dengan lapang?", "Di tubuhmu, rasa “tidak pantas” terasa seperti apa? Beri nama untuk rasa itu.", "Tulis tiga hal tentang dirimu yang tetap berharga bahkan saat kamu tidak sedang berbuat apa-apa."] },
+    { name: "Suara yang Didengar", short: "Tentang keberanian bersuara dan merasa dipahami.",
+      story: [
+        "Ada kata-kata yang sudah sampai di ujung lidah, lalu kamu telan lagi. Bukan karena kamu tidak punya pendapat, tapi karena kamu sudah hafal rasanya tidak dimengerti: dipotong, diremehkan, atau dijawab dengan “ah, kamu terlalu sensitif.”",
+        "Lama-lama kamu pandai menyusun kalimat di kepala, menimbang, merevisi, lalu memilih diam. Atau kamu bicara, dan sesudahnya mengulang-ulang apa yang tadi kamu katakan.",
+        "Banyak hal di dalam dirimu yang belum pernah benar-benar didengar, termasuk oleh dirimu sendiri. Halaman ini aman untuk itu. Tidak ada yang akan menyela, dan kita mulai dari yang paling pelan."
+      ],
+      items: ["Aku sering menelan kata-kataku karena merasa tidak akan dimengerti.", "Setelah bicara, aku sering menyesal atau mengulang-ulang apa yang kukatakan."],
+      prompts: ["Apa yang paling sering kamu telan sebelum sempat diucapkan?", "Apa yang kamu takutkan jika kata-katamu disalahpahami?", "Tulis surat yang tidak akan dikirim, berisi hal yang belum sempat kamu katakan."] },
+    { name: "Rumah di Dalam Diri", short: "Tentang rasa memiliki dan dirawat.",
+      story: [
+        "Kamu orang yang tahu kapan temanmu sedang tidak baik-baik saja. Kamu menyiapkan teh, mendengarkan, dan menemani. Tapi saat gilirannya kamu yang lelah, ruangan terasa sunyi, dan kamu tidak tahu harus pulang ke mana.",
+        "Mungkin rumah, dalam arti tempat kamu bisa melepas semuanya tanpa menjelaskan apa pun, belum pernah benar-benar terasa aman. Maka kamu belajar menjadi rumah bagi orang lain, sambil diam-diam mencari rumahmu sendiri.",
+        "Sebelum ada yang bisa merawatmu, mungkin kamu perlu tahu dulu seperti apa rasanya dirawat. Kita mulai dari mengingat satu saat yang terasa aman, sekecil apa pun."
+      ],
+      items: ["Aku merasa tidak punya tempat yang benar-benar membuatku bisa lepas dan menjadi diri sendiri.", "Aku yang biasa merawat orang lain, tapi jarang ada yang merawatku."],
+      prompts: ["Kapan kamu terakhir merasa benar-benar aman dan tenang? Siapa atau apa yang ada di sana?", "Bagian dirimu yang mana yang paling sering merawat orang lain, tapi diam-diam lelah merasa sendiri?", "Tulis tiga cara kecil untuk merawat dirimu malam ini, seperti yang biasa kamu lakukan untuk orang lain."] },
+    { name: "Berani Terlihat", short: "Tentang mengizinkan diri untuk dilihat dan dihargai.",
+      story: [
+        "Ada hal yang sebenarnya ingin kamu bagikan: karya, ide, kabar baik, atau sekadar dirimu yang sedang bahagia. Tapi kamu menimbang dulu, takut terlihat berlebihan, lalu memilih menyimpannya.",
+        "Mungkin pernah ada saat ketika kamu bersinar dan justru dibuat malu. Sejak itu, tampil kecil terasa lebih aman daripada dinilai. Di balik semua itu ada keinginan yang sangat manusiawi: dilihat, dihargai, dan disambut.",
+        "Keinginan itu tidak perlu disembunyikan di sini. Tidak ada penonton dan tidak ada penilaian. Kita mulai dengan mengakui bagian dirimu yang selama ini kamu simpan."
+      ],
+      items: ["Aku menahan diri untuk tampil atau berbagi karya karena takut dianggap berlebihan.", "Aku ingin dilihat dan dihargai, tapi malu mengakuinya."],
+      prompts: ["Bagian dirimu yang mana yang sering kamu sembunyikan supaya tidak dianggap berlebihan?", "Apakah rasanya malu, takut dinilai, atau takut ditolak? Mana yang paling dekat?", "Tulis satu hal dari dirimu yang ingin kamu biarkan terlihat minggu ini, sekecil apa pun."] },
+    { name: "Merasa Cukup", short: "Tentang melepas tuntutan untuk selalu sempurna.",
+      story: [
+        "Ada hari-hari ketika kamu sudah melakukan banyak hal, tapi kalimat di kepalamu tetap sama: “belum cukup.” Satu hal selesai, tiga hal lain langsung terlihat belum. Pujian datang, dan kamu sibuk mencari bagian yang masih kurang.",
+        "Mungkin dulu, menjadi rapi, baik, dan berprestasi adalah cara paling aman untuk dicintai. Kamu belajar membaca apa yang diharapkan, lalu memenuhinya sebelum diminta. Itu bukan kelemahan. Itu cara bertahan yang dulu berhasil.",
+        "Tapi mungkin kini kamu lelah menjadi hakim sekaligus terdakwa bagi dirimu sendiri. Di halaman berikutnya, kamu tidak perlu membuktikan apa pun. Cukup perhatikan dulu: suara siapa yang selama ini bicara di kepalamu?"
+      ],
+      items: ["Pencapaian sebesar apa pun terasa belum cukup.", "Aku lebih keras pada diriku sendiri daripada pada orang lain."],
+      prompts: ["Standar apa yang kamu pakai untuk dirimu, yang tidak akan kamu pakai untuk sahabatmu?", "Suara siapa yang kamu dengar saat mengkritik dirimu? Sejak kapan suara itu ada?", "Tulis: “Hari ini aku sudah cukup melakukan…” lalu lengkapi dengan tiga hal."] },
+    { name: "Tetap Utuh dalam Hubungan", short: "Tentang jujur pada diri sendiri tanpa takut kehilangan orang lain.",
+      story: [
+        "Kamu pandai membaca suasana. Kamu tahu kapan harus mengalah, kapan harus diam, kapan harus tersenyum supaya semuanya tetap damai. Hanya saja, kadang setelah pulang kamu bertanya-tanya: kapan terakhir kali aku jujur tentang yang kuinginkan?",
+        "Mungkin kamu takut kejujuranmu akan membuat orang menjauh. Jadi kamu menyimpan kebutuhanmu rapat-rapat demi menjaga kedekatan. Namun kedekatan yang membuatmu menghilang sedikit demi sedikit bisa terasa sepi, bahkan saat kamu tidak sendirian.",
+        "Di sini, kamu boleh jujur dulu pada dirimu sendiri. Belum perlu memberi tahu siapa pun. Kita mulai dari menyadari di mana kamu paling sering mengalah."
+      ],
+      items: ["Aku mengalah atau menyembunyikan perasaan demi menjaga hubungan tetap damai.", "Aku takut ditinggalkan kalau jujur tentang apa yang kubutuhkan."],
+      prompts: ["Dalam hubungan mana kamu paling sering mengalah?", "Apa yang kamu takutkan akan terjadi jika kamu jujur tentang kebutuhanmu?", "Tulis satu kebutuhan yang selama ini kamu simpan, dan satu cara lembut untuk menyampaikannya."] },
+    { name: "Berani Percaya", short: "Tentang membuka diri setelah pernah kecewa.",
+      story: [
+        "Kamu tidak mudah membuka diri. Kamu mengamati dulu, menimbang, dan menjaga jarak yang aman. Orang mungkin mengira kamu dingin, padahal di balik itu ada hati yang sangat dalam dan sangat berhati-hati.",
+        "Mungkin pernah ada seseorang yang kamu percaya, lalu mengecewakanmu. Sejak itu, waspada terasa seperti perlindungan dan keterbukaan terasa seperti risiko. Kewaspadaan itu pernah menyelamatkanmu. Hanya saja, ia juga bisa membuatmu sendirian.",
+        "Kita tidak akan memaksamu percaya pada siapa pun. Kita hanya melihat dulu dengan lembut kapan semua ini bermula, dan apa yang sebenarnya sedang kamu jaga."
+      ],
+      items: ["Aku sulit membuka diri, bahkan kepada orang yang dekat denganku.", "Aku selalu waspada kalau-kalau ada yang akan mengecewakan atau mengkhianatiku."],
+      prompts: ["Kapan kamu mulai belajar bahwa lebih aman untuk tidak terlalu terbuka?", "Rasa mana yang paling kamu jaga: takut dikhianati, takut ditinggalkan, atau takut terlihat lemah?", "Tulis satu hal yang ingin kamu lepaskan dari pengalaman itu, dan satu hal yang ingin kamu bawa: pelajarannya."] },
+    { name: "Mencari Arah dan Makna", short: "Tentang mempercayai pilihanmu dan menemukan arah.",
+      story: [
+        "Kadang kamu bangun dan bertanya: ini sebenarnya menuju ke mana? Hidup terus berjalan, tapi kompasmu terasa berputar. Hal yang dulu kamu yakini kini terasa kurang pas, dan belum ada yang menggantikannya.",
+        "Mungkin pernah ada masa ketika pilihanmu dipertanyakan atau keyakinanmu diremehkan, sehingga kamu mulai ragu pada penilaianmu sendiri. Kebingungan ini belum tentu tanda kamu tersesat. Bisa jadi kamu sedang tumbuh melewati jawaban yang lama.",
+        "Kamu belum perlu menemukan jawabannya hari ini. Kita mulai dari menamai di bagian hidup mana arahmu terasa paling kabur."
+      ],
+      items: ["Aku sering merasa kehilangan arah atau tidak yakin apa yang sebenarnya kuyakini.", "Aku pernah merasa pilihan dan keyakinanku dihakimi, lalu jadi ragu pada diriku sendiri."],
+      prompts: ["Di bagian hidup mana kamu merasa paling bingung arah sekarang?", "Apa yang dulu kamu yakini tapi sekarang kamu ragukan? Bagaimana perasaanmu tentang itu?", "Tulis satu hal yang kamu yakini hari ini, meski masih kecil, dan satu langkah yang searah dengannya."] },
+    { name: "Layak Tanpa Membuktikan", short: "Tentang dihargai bukan karena prestasi.",
+      story: [
+        "Kamu orang yang bisa diandalkan. Targetmu jelas, kerjamu tuntas, dan orang-orang tahu mereka bisa bersandar padamu. Tapi saat berhenti sebentar saja, ada rasa bersalah yang diam-diam muncul.",
+        "Mungkin sejak dulu kamu belajar bahwa penghargaan datang setelah berhasil, jadi istirahat terasa seperti tidak tahu diri. Kamu tumbuh kuat, tapi mungkin kini lelah harus menjadi kuat setiap hari.",
+        "Di halaman ini kamu tidak punya target. Kita mulai dengan melihat kapan kamu pertama kali merasa harus berguna dulu supaya dihargai."
+      ],
+      items: ["Aku merasa harus berprestasi dulu supaya dihargai.", "Aku sulit beristirahat tanpa merasa bersalah."],
+      prompts: ["Kapan kamu merasa dihargai hanya setelah berhasil atau berguna?", "Apa yang kamu takutkan akan terjadi jika kamu berhenti sejenak?", "Beri dirimu istirahat 15 menit hari ini tanpa alasan. Tulis apa yang kamu rasakan setelahnya."] },
+    { name: "Diterima Apa Adanya", short: "Tentang menjadi bagian dari kelompok tanpa harus menjadi orang lain.",
+      story: [
+        "Di tengah keramaian, kamu bisa merasa seperti tamu. Kamu ikut tertawa, ikut mengobrol, tapi ada jarak tipis yang sulit dijelaskan. Kamu merasa sedikit berbeda, dan tidak yakin apakah boleh mengatakannya.",
+        "Mungkin kamu pernah menyesuaikan diri supaya diterima, dan sedikit demi sedikit menyimpan bagian dirimu yang terasa terlalu aneh. Rasa berbeda itu tidak berarti ada yang salah denganmu. Sering kali itu tanda kamu belum bertemu ruang yang pas.",
+        "Di sini, tidak ada yang perlu kamu sesuaikan. Kita mulai dengan melihat saat-saat kamu merasa paling berbeda, tanpa menghakimi."
+      ],
+      items: ["Di tengah keramaian, aku sering merasa berbeda atau tidak sepenuhnya diterima.", "Aku merasa harus menyesuaikan diri supaya bisa diterima oleh kelompok."],
+      prompts: ["Kapan kamu merasa paling berbeda dari orang-orang di sekitarmu?", "Apa yang kamu sembunyikan agar bisa diterima? Bagaimana rasanya menyembunyikan itu?", "Tulis tentang satu orang atau ruang tempat kamu bisa menjadi dirimu. Apa yang membuatnya aman?"] },
+    { name: "Batas Diri", short: "Tentang membedakan perasaanmu dari perasaan orang lain.",
+      story: [
+        "Kamu menyerap suasana. Satu ruangan yang tegang bisa membuatmu ikut lelah, dan cerita sedih temanmu bisa kamu bawa sampai ke tempat tidur. Setelah itu kamu sulit membedakan: ini perasaanku atau perasaan mereka?",
+        "Mungkin untuk bertahan, kamu belajar mengalihkan diri: tidur, menggulir layar, melamun. Itu bukan kemalasan. Itu cara tubuhmu mencari jeda ketika semuanya terasa terlalu penuh.",
+        "Kita tidak akan mematikan kepekaanmu, karena kepekaan itu berharga. Kita hanya belajar menaruh batas yang lembut di sekelilingnya, dimulai dari mengenali apa yang sebenarnya milikmu."
+      ],
+      items: ["Aku mudah ikut menyerap perasaan orang lain sampai kelelahan.", "Saat terlalu berat, aku mengalihkan diri dengan tidur, scrolling, atau melamun."],
+      prompts: ["Perasaan siapa yang belakangan ini kamu bawa, padahal bukan milikmu?", "Saat kewalahan, kamu biasanya mengalihkan diri dengan apa? Apa yang sebenarnya sedang kamu hindari?", "Tulis: “Ini bukan bebanku untuk kupikul sendiri,” lalu catat satu batas kecil yang ingin kamu pasang."] }
+  ];
+  var LABELS = ["Tidak pernah", "Jarang", "Sering", "Hampir selalu"];
+  var STEPS = ["Sadari", "Namai", "Lepaskan"];
+
+  var Q = [];
+  THEMES.forEach(function (t, ti) { t.items.forEach(function (s) { Q.push({ t: ti, s: s }); }); });
+
+  var order = [], answers = [], idx = 0, picked = [], alt = [], sample = false, locked = false, pickSlot = 0;
+  var VIEWS = ["intro", "quiz", "result", "picker"];
+  function $(id) { return document.getElementById(id); }
+
+  function shuffle(a) {
+    for (var i = a.length - 1; i > 0; i--) {
+      var j = Math.floor(Math.random() * (i + 1));
+      var x = a[i]; a[i] = a[j]; a[j] = x;
+    }
+    return a;
+  }
+
+  function show(name) {
+    VIEWS.forEach(function (v) { $("v-" + v).hidden = (v !== name); });
+    try { window.scrollTo(0, 0); } catch (e) {}
+  }
+
+  function start() {
+    order = shuffle(Q.slice());
+    answers = [];
+    idx = 0;
+    sample = false;
+    show("quiz");
+    renderQ();
+  }
+
+  function renderQ() {
+    $("qtext").textContent = order[idx].s;
+    $("count").textContent = (idx + 1) + " / " + order.length;
+    $("fill").style.width = (idx / order.length * 100) + "%";
+    $("btn-back").hidden = idx === 0;
+    var box = $("opts");
+    box.innerHTML = "";
+    LABELS.forEach(function (label, v) {
+      var b = document.createElement("button");
+      b.type = "button";
+      b.className = "opt" + (answers[idx] === v ? " sel" : "");
+      b.id = "opt-" + v;
+      b.textContent = label;
+      b.setAttribute("data-v", v);
+      box.appendChild(b);
+    });
+  }
+
+  function choose(v) {
+    if (locked) return;
+    locked = true;
+    answers[idx] = v;
+    var el = $("opt-" + v);
+    if (el) el.classList.add("sel");
+    setTimeout(function () {
+      locked = false;
+      if (idx < order.length - 1) { idx++; renderQ(); }
+      else { $("fill").style.width = "100%"; finish(); }
+    }, 220);
+  }
+
+  function rank() {
+    var score = THEMES.map(function () { return 0; });
+    var top = THEMES.map(function () { return 0; });
+    order.forEach(function (q, i) {
+      var pts = answers[i] + 1;
+      score[q.t] += pts;
+      if (pts > top[q.t]) top[q.t] = pts;
+    });
+    var idxs = THEMES.map(function (_, i) { return i; });
+    idxs.sort(function (a, b) { return (score[b] - score[a]) || (top[b] - top[a]) || (a - b); });
+    return idxs;
+  }
+
+  function finish() {
+    var r = rank();
+    picked = r.slice(0, 2);
+    alt = r.slice(2, 5);
+    sample = false;
+    renderResult();
+    show("result");
+  }
+
+  function cardHTML(ti, slot) {
+    var t = THEMES[ti];
+    var story = t.story.map(function (p) { return "<p>" + p + "</p>"; }).join("");
+    var steps = t.prompts.map(function (p, i) {
+      return '<li><span class="step">' + STEPS[i] + '</span><p>' + p + '</p></li>';
+    }).join("");
+    return '<article class="theme">' +
+      '<p class="eyebrow">' + (slot === 0 ? "Tema utama" : "Tema kedua") + '</p>' +
+      '<h2>' + t.name + '</h2>' +
+      '<div class="story">' + story + '</div>' +
+      '<div class="begin"><p class="eyebrow">Mulai pelan-pelan</p><p class="note">Tiga langkah. Berhenti kapan pun kamu perlu.</p></div>' +
+      '<ol class="steps">' + steps + '</ol>' +
+      '<button type="button" class="link" id="swap-' + slot + '" data-swap="' + slot + '">Kurang pas? Ganti tema ini</button>' +
+      '</article>';
+  }
+
+  function renderResult() {
+    $("sample").hidden = !sample;
+    $("cards").innerHTML = picked.map(function (ti, slot) { return cardHTML(ti, slot); }).join("");
+  }
+
+  function openPicker(slot) {
+    pickSlot = slot;
+    var html = "";
+    alt.forEach(function (i) {
+      var t = THEMES[i];
+      html += '<button type="button" class="pick" id="pick-' + i + '" data-pick="' + i + '"><b>' + t.name + '</b><span>' + t.short + '</span></button>';
+    });
+    $("picklist").innerHTML = html;
+    show("picker");
+  }
+
+  document.addEventListener("click", function (e) {
+    var el = e.target.closest ? e.target.closest("button") : null;
+    if (!el) return;
+    var act = el.getAttribute("data-act");
+    if (act === "start") return start();
+    if (act === "sample") { picked = [5, 2]; alt = [3, 7, 0]; sample = true; renderResult(); return show("result"); }
+    if (act === "back") { if (idx > 0) { idx--; renderQ(); } return; }
+    if (act === "retry") { sample = false; return show("intro"); }
+    if (act === "cancel") return show("result");
+    if (el.hasAttribute("data-v")) return choose(parseInt(el.getAttribute("data-v"), 10));
+    if (el.hasAttribute("data-swap")) return openPicker(parseInt(el.getAttribute("data-swap"), 10));
+    if (el.hasAttribute("data-pick")) {
+      var ti = parseInt(el.getAttribute("data-pick"), 10);
+      var old = picked[pickSlot];
+      picked[pickSlot] = ti;
+      alt = alt.map(function (x) { return x === ti ? old : x; });
+      renderResult();
+      return show("result");
+    }
+  });
+})();
+</script>
+
+</body>
+</html>
